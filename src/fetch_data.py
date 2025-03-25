@@ -31,7 +31,7 @@ def fetch_ticker_data(ticker: str, period: str, interval: str) -> pd.DataFrame:
         ).reset_index()
 
         df = data.copy()
-        df = df[["Date", "Adj Close"]]
+        # df = df[["Date", "Adj Close"]] # keep only date and adjusted close price
 
     except Exception as e:
         print(f"Error downloading {ticker}: {e}")

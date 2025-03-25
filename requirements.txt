@@ -19,9 +19,11 @@ jedi==0.19.2
 jupyter_client==8.6.3
 jupyter_core==5.7.2
 kiwisolver==1.4.8
+lxml==5.3.1
 matplotlib==3.10.1
 matplotlib-inline==0.1.7
 multitasking==0.0.11
+narwhals==1.31.0
 nest-asyncio==1.6.0
 numpy==2.2.4
 packaging==24.2
@@ -31,6 +33,7 @@ peewee==3.17.9
 pexpect==4.9.0
 pillow==11.1.0
 platformdirs==4.3.7
+plotly==6.0.1
 prompt_toolkit==3.0.50
 psutil==7.0.0
 ptyprocess==0.7.0
