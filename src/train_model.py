@@ -7,7 +7,7 @@ import pickle
 import os
 
 # Load data
-df = pd.read_csv("data/input/AAPL.csv")
+df = pd.read_csv("./data/input/AAPL.csv")
 df["Date"] = pd.to_datetime(df["Date"])
 
 # Extract date-based features
@@ -85,8 +85,8 @@ if __name__ == "__main__":
     df_results, model = predict_train_model(model, dataset)
 
     # Save results
-    os.makedirs("../data/results", exist_ok=True)
-    df_results.to_csv("data/results/predictions.csv", index=False)
+    os.makedirs("./data/results", exist_ok=True)
+    df_results.to_csv("./data/results/predictions.csv", index=False)
 
     # Save model
     with open('models/model.pkl', 'wb') as f:

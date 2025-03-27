@@ -1,5 +1,6 @@
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 
 def create_prediction_plot(results_df: pd.DataFrame) -> px.line:
     """
@@ -30,9 +31,9 @@ def create_prediction_plot(results_df: pd.DataFrame) -> px.line:
         template="plotly_white"
     )
     
-    # Define custom hover template with Trend Agreement
+    # Define custom hover template for Actual and Prediction
     fig.update_traces(
-        hovertemplate="<b>%{y:$,.2f}</b>",
+        hovertemplate="     <b>%{y:$,.2f}</b>",
         selector=dict(name="Actual")
     )
     fig.update_traces(
@@ -49,7 +50,7 @@ def create_prediction_plot(results_df: pd.DataFrame) -> px.line:
         "6 months": latest_date - pd.DateOffset(months=6),
         "3 months": latest_date - pd.DateOffset(months=3),
         "1 month": latest_date - pd.DateOffset(months=1),
-        "5 days": latest_date - pd.DateOffset(days=5),
+        "2 weeks": latest_date - pd.DateOffset(days=14),
     }
 
     # Add buttons for different time scales and set default to 2 years
@@ -62,14 +63,16 @@ def create_prediction_plot(results_df: pd.DataFrame) -> px.line:
                 ],
                 "direction": "down",
                 "showactive": True,
-                "x": .375,
+                "active": 1,  # Set active button to 2 years
+                "x": 0.375,
                 "xanchor": "right",
                 "y": 1.275,
                 "yanchor": "top",
             }
         ],
         hovermode="x unified",
-        xaxis_range=[time_ranges["2 years"], latest_date]  # Set default to 2 years
+        xaxis_range=[time_ranges["2 years"], latest_date],  # Set default to 2 years
+        margin=dict(b=0),
     )
 
     return fig

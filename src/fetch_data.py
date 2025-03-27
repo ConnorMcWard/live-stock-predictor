@@ -31,11 +31,10 @@ def fetch_ticker_data(ticker: str, period: str, interval: str) -> pd.DataFrame:
         ).reset_index()
 
         df = data.copy()
-        # df = df[["Date", "Adj Close"]] # keep only date and adjusted close price
 
     except Exception as e:
         print(f"Error downloading {ticker}: {e}")
-        data=pd.DataFrame()
+        df=pd.DataFrame()
 
     return df
 
@@ -64,6 +63,6 @@ if __name__ == "__main__":
 
     df = fetch_ticker_data(ticker=ticker, period='2y', interval='1d')
 
-    save_stock_data(ticker, full_df=df, output_path="data/input/")
+    save_stock_data(ticker, full_df=df, output_path="./data/input/")
 
     print(f"{ticker} stock(s) download complete!")
