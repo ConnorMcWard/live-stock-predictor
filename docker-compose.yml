@@ -1,0 +1,51 @@
+version: "3.11.4"
+
+services:
+  db:
+    container_name: database
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: stockdb
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # Add this line
+    ports:
+      - "5432:5432"
+
+  fetcher:
+    container_name: data-fetcher
+    build: .
+    command: python -u fetch_data.py
+    environment:
+      - DATABASE_URL=postgresql://myuser:mypassword@db:5432/stockdb
+    depends_on:
+      - db
+    restart: always
+
+  trainer:
+    container_name: model-trainer
+    build: .
+    command: python -u train_model.py
+    environment:
+      - DATABASE_URL=postgresql://myuser:mypassword@db:5432/stockdb
+    depends_on:
+      - db
+    restart: always
+
+  dashboard:
+    container_name: dashboard
+    build: .
+    command: python -u app.py
+    environment:
+      - DATABASE_URL=postgresql://myuser:mypassword@db:5432/stockdb
+    ports:
+      - "8050:8050"
+    depends_on:
+      - db
+    restart: always
+
+volumes:
+  db-data:

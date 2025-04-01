@@ -1,7 +1,8 @@
 import yfinance as yf
 import pandas as pd
 import os
-
+import time
+from sqlalchemy import create_engine, text
 
 def fetch_ticker_data(ticker: str, period: str, interval: str) -> pd.DataFrame:
     """
@@ -34,35 +35,51 @@ def fetch_ticker_data(ticker: str, period: str, interval: str) -> pd.DataFrame:
 
     except Exception as e:
         print(f"Error downloading {ticker}: {e}")
-        df=pd.DataFrame()
+        df = pd.DataFrame()
 
     return df
 
-
-def save_stock_data(ticker: str, full_df: pd.DataFrame, output_path: str) -> None:
+def save_stock_data_to_db(ticker: str, df: pd.DataFrame, engine, table_name: str = "stock_data") -> None:
     """
-    Save metadata and historical stock data to data output folder for model training
-
-    Args:
-        ticker (str): Stock ticker symbol.
-        full_df (pd.DataFrame): DataFrame after being combined using combine_stock_data.
-        output_path (str): output directory for storing data.
+    Insert new stock data into the database.
     """
-    # create directory if it doesn't exist
-    os.makedirs(output_path, exist_ok=True)
+    df['Ticker'] = ticker
+    df.to_sql(table_name, engine, if_exists='append', index=False)
+    print(f"Data for {ticker} inserted into table '{table_name}'.")
 
-    full_file_path = os.path.join(output_path, f"{ticker}.csv")
-    full_df.to_csv(path_or_buf=full_file_path, index=False)
-
+def check_if_initial_run(engine, ticker: str) -> bool:
+    """
+    Return True if no data exists in the table for the given ticker.
+    """
+    try:
+        query = text("SELECT COUNT(*) FROM stock_data WHERE \"Ticker\" = :ticker")
+        with engine.connect() as conn:
+            count = conn.execute(query, {'ticker': ticker}).scalar()
+            return count == 0
+    except Exception as e:
+        # If table doesn't exist or any error occurs, assume initial run.
+        return True
 
 if __name__ == "__main__":
     # get Apple Ticker data ("AAPL")
     ticker = "AAPL"
-
-    print(f"Downloading Ticker: {ticker}")
-
-    df = fetch_ticker_data(ticker=ticker, period='2y', interval='1d')
-
-    save_stock_data(ticker, full_df=df, output_path="./data/input/")
-
-    print(f"{ticker} stock(s) download complete!")
+    db_url = os.environ.get("DATABASE_URL")
+    if not db_url:
+        raise ValueError("DATABASE_URL environment variable not set")
+    engine = create_engine(db_url)
+    
+    while True:
+        print("=== Fetch Data Process Started ===")
+        initial_run = check_if_initial_run(engine, ticker)
+        period = "1mo" if initial_run else "1d"
+        interval = "1d"  # Adjust as needed
+        
+        print(f"Fetching data for {ticker} with period '{period}'")
+        df = fetch_ticker_data(ticker=ticker, period=period, interval=interval)
+        if not df.empty:
+            save_stock_data_to_db(ticker, df, engine, table_name="stock_data")
+        else:
+            print("No data fetched.")
+        
+        print("Fetch process complete. Sleeping for 12 hours...")
+        time.sleep(43200)  # Sleep for 12 hours
