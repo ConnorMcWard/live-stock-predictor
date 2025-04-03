@@ -47,7 +47,7 @@ The system is built as a multi-container Docker application, where each service 
    ```
 2. **Build and Run the Containers:**
     ```bash
-    docker-compose up --build
+    docker compose up --build
     ```
 3. **Access the Dashboard:** <br>
     Open your browser and navigate to http://localhost:8050.
