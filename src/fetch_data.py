@@ -4,6 +4,7 @@ import os
 import time
 from sqlalchemy import create_engine, text
 
+
 def fetch_ticker_data(ticker: str, period: str, interval: str) -> pd.DataFrame:
     """
     Download historical stock data from Yahoo Finance.
@@ -71,7 +72,7 @@ if __name__ == "__main__":
     while True:
         print("=== Fetch Data Process Started ===")
         initial_run = check_if_initial_run(engine, ticker)
-        period = "1mo" if initial_run else "1d"
+        period = "3mo" if initial_run else "1d"
         interval = "1d"  # Adjust as needed
         
         print(f"Fetching data for {ticker} with period '{period}'")

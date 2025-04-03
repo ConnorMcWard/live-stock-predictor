@@ -1,3 +1,9 @@
+-- Ensure the database exists
+CREATE DATABASE stockdb;
+
+\c stockdb;  -- Switch to stockdb
+
+-- Create stock_data table
 CREATE TABLE IF NOT EXISTS stock_data (
     "Date" TIMESTAMP,
     "Open" FLOAT,
@@ -9,6 +15,7 @@ CREATE TABLE IF NOT EXISTS stock_data (
     "Ticker" VARCHAR(10)
 );
 
+-- Create predictions table
 CREATE TABLE IF NOT EXISTS predictions (
     "Date" TIMESTAMP,
     "Actual" FLOAT,

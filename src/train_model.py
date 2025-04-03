@@ -3,26 +3,27 @@ from river import linear_model, optim, metrics
 import os
 import time
 from sqlalchemy import create_engine, text
+from sqlalchemy import inspect
+
 
 def get_unprocessed_data(engine, ticker: str) -> pd.DataFrame:
-    """
-    Retrieve records from stock_data that have not yet been processed.
-    """
-    # Get last processed date from predictions table
-    query_last = text("SELECT MAX(\"Date\") FROM predictions")
-    with engine.connect() as conn:
-        last_date = conn.execute(query_last).scalar()
-    
+    inspector = inspect(engine)
+    if "predictions" in inspector.get_table_names():
+        query_last = text('SELECT MAX("Date") FROM predictions')
+        with engine.connect() as conn:
+            last_date = conn.execute(query_last).scalar()
+    else:
+        last_date = None
     if last_date:
         query = text(
-            "SELECT * FROM stock_data WHERE \"Ticker\" = :ticker AND \"Date\" > :last_date ORDER BY \"Date\" ASC"
+            'SELECT * FROM stock_data WHERE "Ticker" = :ticker AND "Date" > :last_date ORDER BY "Date" ASC'
         )
         df = pd.read_sql(query, engine, params={"ticker": ticker, "last_date": last_date})
     else:
-        # Process all records if no predictions exist yet
-        query = text("SELECT * FROM stock_data WHERE \"Ticker\" = :ticker ORDER BY \"Date\" ASC")
+        query = text('SELECT * FROM stock_data WHERE "Ticker" = :ticker ORDER BY "Date" ASC')
         df = pd.read_sql(query, engine, params={"ticker": ticker})
     return df
+
 
 def process_and_train(engine, ticker: str, model):
     # Get new data from stock_data table
