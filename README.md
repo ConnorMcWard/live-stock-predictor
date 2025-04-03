@@ -38,11 +38,6 @@ The system is built as a multi-container Docker application, where each service 
 
 ## Getting Started
 
-### Prerequisites
-
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- Basic knowledge of Docker and Docker Compose.
-
 ### Setup
 
 1. **Clone the Repository:**
