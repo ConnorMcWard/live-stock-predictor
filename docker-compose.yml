@@ -1,0 +1,54 @@
+services:
+  db:
+    container_name: postgres-db
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: stockdb
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d stockdb"]
+      interval: 10s
+      retries: 5
+      start_period: 1s
+
+  fetcher:
+    container_name: data-fetcher
+    build: .
+    command: sh -c "sleep 5 && python -u fetch_data.py"
+    environment:
+      - DATABASE_URL=postgresql://myuser:mypassword@db:5432/stockdb
+    depends_on:
+      - db
+    restart: on-failure:3
+
+  trainer:
+    container_name: model-trainer
+    build: .
+    command: sh -c "sleep 10 && python -u train_model.py"
+    environment:
+      - DATABASE_URL=postgresql://myuser:mypassword@db:5432/stockdb
+    depends_on:
+      - fetcher
+    restart: on-failure:3
+
+  dashboard:
+    container_name: app-dashboard
+    build: .
+    command: sh -c "sleep 15 && python -u app.py"
+    environment:
+      - DATABASE_URL=postgresql://myuser:mypassword@db:5432/stockdb
+    ports:
+      - "8050:8050"
+    depends_on:
+      - trainer
+    restart: always
+
+volumes:
+  db-data:

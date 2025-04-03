@@ -2,12 +2,22 @@ import dash
 from dash import dcc, html, dash_table
 import plotly.graph_objs as go
 import pandas as pd
-import numpy as np
+import os
+from sqlalchemy import create_engine
 from app_functions.data_processing import compute_trend_agreement
 from app_functions.plotting import create_prediction_plot
 
-# Load Data (replace with actual file loading logic)
-data = pd.read_csv("./data/results/predictions.csv")
+# Create DB engine from DATABASE_URL environment variable
+db_url = os.environ.get("DATABASE_URL")
+if not db_url:
+    raise ValueError("DATABASE_URL environment variable not set")
+engine = create_engine(db_url)
+
+# Initialize Dash app
+app = dash.Dash(__name__)
+
+# Query predictions from the database
+data = pd.read_sql('SELECT * FROM predictions ORDER BY "Date" DESC', engine)
 data = compute_trend_agreement(data)
 
 # Create Data Table
@@ -20,21 +30,10 @@ tot_agree_up = sum(data['Trend Agreement'] ==  'Agree (Up)')
 tot_agree_down = sum(data['Trend Agreement'] == 'Agree (Down)')
 tot_disagree = sum(data['Trend Agreement'] == 'Disagree')
 
-# Dash App
-app = dash.Dash(__name__)
-
+# Create Layout
 app.layout = html.Div([
-    html.H1(
-        "Stock Prediction Dashboard",
-        style={'margin-left': '20px'}  # Move the title slightly to the right
-    ),
-    
-    
-    dcc.Graph(
-        id='prediction-plot',
-        figure=create_prediction_plot(data)
-    ),
-    
+    html.H1("Stock Prediction Dashboard", style={'margin-left': '20px'}),
+    dcc.Graph(id='prediction-plot', figure=create_prediction_plot(data)),
     html.Div([
         html.Div([
             html.H3("Stock Prediction"),
@@ -56,11 +55,12 @@ app.layout = html.Div([
             html.P(f" Agree (Down): {tot_agree_down}"),
             html.P(f"Disagree: {tot_disagree}"),
         ], style={'width': '40%', 'textAlign': 'center'})
-    ], style={'display': 'flex', 
-              'justify-content': 'space-between', 
-              'alignItems': 'center',
-              'padding': '20px',
-              }),
+    ], style={
+        'display': 'flex', 
+        'justify-content': 'space-between', 
+        'alignItems': 'center',
+        'padding': '20px',
+    }),
     
     dash_table.DataTable(
         id='stock-table',
@@ -74,9 +74,9 @@ app.layout = html.Div([
         page_size=10,
         page_action="native",
         style_table={'overflowX': 'auto'},
-        style_cell={'textAlign': 'center'},  # Center-align all columns
+        style_cell={'textAlign': 'center'},
     )
 ])
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=8050, debug=True)
