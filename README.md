@@ -23,7 +23,7 @@ All components are containerized for consistency, reproducibility, and ease of d
 
 The system is built as a multi-container Docker application, where each service operates in its own container:
 
-- **PostgreSQL Database:** 
+- **PostgreSQL Database:** <br>
   Stores both the historical stock data (and subsequent features) as well as predictions.
 
 - **Data Ingestion:**  
@@ -49,8 +49,7 @@ The system is built as a multi-container Docker application, where each service 
     ```bash
     docker-compose up --build
     ```
-3. **Access the Dashboard:**
-
+3. **Access the Dashboard:** <br>
     Open your browser and navigate to http://localhost:8050.
 
 ## Contributing
