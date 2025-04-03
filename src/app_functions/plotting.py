@@ -44,7 +44,6 @@ def create_prediction_plot(results_df: pd.DataFrame) -> px.line:
     # Define time ranges
     latest_date = results_df["Date"].max()
     time_ranges = {
-        "5 years": latest_date - pd.DateOffset(years=5),
         "2 years": latest_date - pd.DateOffset(years=2),
         "1 year": latest_date - pd.DateOffset(years=1),
         "6 months": latest_date - pd.DateOffset(months=6),
@@ -63,7 +62,7 @@ def create_prediction_plot(results_df: pd.DataFrame) -> px.line:
                 ],
                 "direction": "down",
                 "showactive": True,
-                "active": 1,  # Set active button to 2 years
+                "active": 1,  # Set active button to 1 year
                 "x": 0.375,
                 "xanchor": "right",
                 "y": 1.275,
@@ -71,7 +70,7 @@ def create_prediction_plot(results_df: pd.DataFrame) -> px.line:
             }
         ],
         hovermode="x unified",
-        xaxis_range=[time_ranges["2 years"], latest_date],  # Set default to 2 years
+        xaxis_range=[time_ranges["1 year"], latest_date],  # Set default to 2 years
         margin=dict(b=0),
     )
 

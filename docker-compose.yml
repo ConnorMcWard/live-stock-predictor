@@ -21,41 +21,33 @@ services:
   fetcher:
     container_name: data-fetcher
     build: .
-    command: python -u fetch_data.py
+    command: sh -c "sleep 5 && python -u fetch_data.py"
     environment:
       - DATABASE_URL=postgresql://myuser:mypassword@db:5432/stockdb
     depends_on:
-      db:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "sleep 10 && exit 0"]
-      interval: 10s
-      retries: 1
-      start_period: 5s
+      - db
     restart: on-failure:3
 
   trainer:
     container_name: model-trainer
     build: .
-    command: python -u train_model.py
+    command: sh -c "sleep 10 && python -u train_model.py"
     environment:
       - DATABASE_URL=postgresql://myuser:mypassword@db:5432/stockdb
     depends_on:
-      fetcher:
-        condition: service_healthy
+      - fetcher
     restart: on-failure:3
 
   dashboard:
     container_name: app-dashboard
     build: .
-    command: python -u app.py
+    command: sh -c "sleep 15 && python -u app.py"
     environment:
       - DATABASE_URL=postgresql://myuser:mypassword@db:5432/stockdb
     ports:
       - "8050:8050"
     depends_on:
-      trainer:
-        condition: service_started
+      - trainer
     restart: always
 
 volumes:
