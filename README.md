@@ -8,7 +8,6 @@ A containerized live stock predictor system that fetches daily stock data, updat
 - [Overview](#overview)
 - [Architecture](#architecture)
 - [Getting Started](#getting-started)
-- [Usage](#usage)
 - [Contributing](#contributing)
 
 ## Overview
@@ -53,18 +52,6 @@ The system is built as a multi-container Docker application, where each service 
 3. **Access the Dashboard:**
 
     Open your browser and navigate to http://localhost:8050.
-
-
-## Usage
-
-- **Data Ingestion:**  
-  The data ingestion service automatically runs on startup, fetching new stock data daily.
-
-- **Model Training:**  
-  The model trainer monitors the `stock_data` database, updates the model, and generates predictions accordingly.
-
-- **Dashboard:**  
-  The Plotly dashboard displays updated predictions in real time, providing visual insights into stock performance.
 
 ## Contributing
 
